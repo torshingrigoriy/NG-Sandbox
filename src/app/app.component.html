@@ -1,10 +1,32 @@
-<!--<div cdkDropList (cdkDropListDropped)="drop($event)" class="widgets" #widgetsContainer>
-  <div cdkDrag class="socket fillAll"><app-colors></app-colors></div>
-  <div cdkDrag class="socket fillHalf"><app-users></app-users></div>
-  <div cdkDrag class="socket fillHalf"><app-form></app-form></div>
-  <div cdkDrag class="socket fillHalf"><app-tasks></app-tasks></div>
-  <div cdkDrag class="socket fillAll"><app-numbers></app-numbers></div>
-  <div cdkDrag class="socket empty"></div>
-</div>-->
+<mat-toolbar>
+  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span>Dashboard</span>
+  <span class="example-spacer"></span>
+  <button
+    (click)="settingMode = !settingMode"
+    mat-icon-button class="example-icon favorite-icon" aria-label="Example icon-button with heart icon">
+    <mat-icon>settings</mat-icon>
+  </button>
+</mat-toolbar>
+
+<mat-selection-list
+  #availableWidgets
+  *ngIf="settingMode">
+  <mat-list-option *ngFor="let newWidget of allWidgets" [value]="newWidget">
+    {{newWidget.name}}
+  </mat-list-option>
+  {{availableWidgets.selectedOptions.selected}}
+  <button mat-raised-button color="primary" (click)="log()">Add</button>
+</mat-selection-list>
+
 <div cdkDropList (cdkDropListDropped)="drop($event)" class="widgets" #widgetsContainer>
+  <div cdkDrag [class]="'socket ' + widget.size" *ngFor="let widget of connectedWidgets">
+    <div *ngIf="settingMode">
+      <button (click)="remove(widget)">remove</button>
+    </div>
+    <div *ngComponentOutlet="widget.component"></div>
+  </div>
 </div>
+

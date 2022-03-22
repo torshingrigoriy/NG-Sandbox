@@ -1,17 +1,15 @@
 import {
-  AfterViewChecked,
   AfterViewInit,
-  Component, ComponentFactory,
-  ComponentFactoryResolver, ComponentRef, ElementRef,
-  OnInit, Renderer2,
-  ViewChild,
-  ViewContainerRef
+  Component,
+  ComponentRef,
+  OnInit, ViewChild
 } from '@angular/core';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {ColorsComponent} from "./components/colors/colors.component";
 import {NumbersComponent} from "./components/numbers/numbers.component";
 import {TasksComponent} from "./components/tasks/tasks.component";
 import {UsersComponent} from "./components/users/users.component";
+import {FormComponent} from "./components/form/form.component";
 
 @Component({
   selector: 'app-root',
@@ -20,44 +18,58 @@ import {UsersComponent} from "./components/users/users.component";
 })
 export class AppComponent implements OnInit, AfterViewInit {
   title = 'Sandbox';
-  widgets: any[] = [
-    {component: ColorsComponent, size: 'fillHalf'},
-    {component: NumbersComponent, size: 'fillAll'},
-    {component: TasksComponent, size: 'fillHalf'}
-  ]
-
-  @ViewChild("widgetsContainer", { read: ViewContainerRef }) container: any;
+  connectedWidgets: any[] = [];
+  allWidgets: any[] = [];
+  settingMode: boolean = true;
   componentRef: ComponentRef<any> | undefined;
-  constructor(
-    private renderer: Renderer2,
-    private viewContainerRef: ViewContainerRef,
-    private componentFactoryResolver: ComponentFactoryResolver,
-    private elementRef: ElementRef
-  ) {
+  @ViewChild('availableWidgets') availableWidgets: any;
+
+  constructor() {
   }
 
-
-
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.widgets, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.connectedWidgets, event.previousIndex, event.currentIndex);
   }
 
   ngOnInit(): void {
+    this.getConnectedWidgets();
   }
 
   ngAfterViewInit(): void {
-    this.container.clear();
-    this.widgets.forEach((w:any, index:number)=> {
-      let div = this.renderer.createElement('div');
-      this.renderer.addClass(div, `socket`);
-      this.renderer.addClass(div, `socket-${index+1}`);
-      this.renderer.addClass(div, `${w.size}`);
-      this.renderer.appendChild(this.container.element.nativeElement, div);
-      console.log(this.viewContainerRef)
-      console.log(this.container)
-      /*const factory: ComponentFactory<any> = this.componentFactoryResolver.resolveComponentFactory(w.component);
-      this.componentRef = this.container.createComponent(factory);*/
-    });
   }
 
+  getAllWidgets() {
+    return [
+      {id: 1, name: 'Colors', component: ColorsComponent},
+      {id: 2, name: 'Numbers', component: NumbersComponent},
+      {id: 3, name: 'Tasks', component: TasksComponent},
+      {id: 4, name: 'Form', component: FormComponent},
+      {id: 5, name: 'Users', component: UsersComponent}
+    ]
+  }
+
+  getConnectedWidgets() {
+    let allWidgets = this.getAllWidgets();
+    let connectedWidgets = [
+      {id: 1, size: 'fillHalf'},
+      {id: 3, size: 'fillAll'},
+      {id: 4, size: 'fillHalf'},
+    ];
+    this.connectedWidgets = connectedWidgets.map(cw => allWidgets.find(aw => aw.id === cw.id));
+    this.allWidgets = allWidgets.filter((aw: any) => !connectedWidgets.find(cw => cw.id == aw.id));
+  }
+
+  remove(removedWidget: any) {
+    this.connectedWidgets = this.connectedWidgets.filter(w => w.id !== removedWidget.id);
+    this.allWidgets.push(removedWidget);
+  }
+
+  addWidget(newWidget: any) {
+    this.connectedWidgets.push({...newWidget, size: 'fillHalf'});
+    this.allWidgets = this.allWidgets.filter(aw => aw.id != newWidget.id);
+  }
+
+  log() {
+    console.log(this.availableWidgets.selectedOptions.value)
+  }
 }
