@@ -1,0 +1,9 @@
+.colors {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  .color {
+    border-radius: 20px;
+    padding: 5px 10px;
+  }
+}
